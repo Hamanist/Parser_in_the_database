@@ -8,6 +8,14 @@
 # Реализовать код, который заполняет созданные в БД PostgreSQL таблицы данными о работодателях и их вакансиях.
 # Создать класс
 # DBManager для работы с данными в БД.
+from manager.bd_manager import DBManager
+from parse_class.parse import Parse
 
-psycopg2
+#Parse().get_data()
 
+# for i in Parse().get_data():
+#     print(i)
+DBManager().connect_bd()
+
+# String Data Right Truncation: value too long for type character varying(50)
+#Unexpected argument
