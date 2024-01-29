@@ -1,6 +1,83 @@
-def main():
-    pass
+import os
+
+import psycopg2
+from dotenv import load_dotenv
+
+from parse_class.parse import Parse
+
+load_dotenv()
 
 
-if __name__ == '__main__':
-    main()
+class DBManager:
+
+    def connect_bd(self):
+        with psycopg2.connect(
+                host=os.getenv('HOST'),
+                database=os.getenv('DATABASE'),
+                user=os.getenv('USER_P'),
+                password=os.getenv('PASSWORD')) as conn:
+            with conn.cursor() as curs:
+                curs.execute(
+                    """CREATE TABLE IF NOT EXISTS company (
+                    company_id INT PRIMARY KEY,
+                    company_name VARCHAR(150) NOT NULL,
+                    url_company VARCHAR(150) NOT NULL 
+                    );
+                    CREATE TABLE IF NOT EXISTS vacancy (
+                    vacancy_id INT PRIMARY KEY,
+                    vacancies_name VARCHAR(150) NOT NULL,
+                    city VARCHAR(150) NOT NULL,
+                    salary_min INT,
+                    salary_max INT,
+                    url_vacancies VARCHAR(250) NOT NULL,
+                    company_id INT REFERENCES company(company_id))
+                    """
+
+                )
+                report = Parse().get_data()
+                for data in report:
+                    curs.execute(
+                        """INSERT INTO company (company_id, company_name, url_company) VALUES(%s, %s, %s)
+                         ON CONFLICT DO NOTHING""",
+                        (data['id'], data['company'], data['url'])
+
+                    )
+
+                    curs.execute(
+                        """INSERT INTO vacancy (vacancy_id, vacancies_name, city, salary_min, salary_max, url_vacancies, company_id)
+                         VALUES(%s, %s, %s, %s, %s, %s, %s)
+                         ON CONFLICT DO NOTHING""",
+                        (data['vacancies_id'], data['vacancies_name'], data['city'], data['salary_min'],
+                         data['salary_max'], data['url_vacancies'], data['id'])
+
+                    )
+
+    def get_companies_and_vacancies_count(self):
+        """
+        Получает список всех компаний и количество вакансий у каждой компании.
+        """
+        pass
+
+    def get_all_vacancies(self):
+        """
+        Получает список всех вакансий с указанием названия компании, названия вакансии и зарплаты и ссылки на вакансию.
+        """
+        pass
+
+    def get_avg_salary(self):
+        """
+    Получает среднюю зарплату по вакансиям.
+        """
+        pass
+
+    def get_vacancies_with_higher_salary(self):
+        """
+        Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям.
+        """
+        pass
+
+    def get_vacancies_with_keyword(self):
+        """
+        Получает список всех вакансий, в названии которых содержатся переданные в метод слова, например python.
+        """
+        pass
