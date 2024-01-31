@@ -14,7 +14,7 @@ def main():
         Получает среднюю зарплату по вакансиям - нажмите 3
         Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям - нажмите 4
         Получает список всех вакансий, в названии которых содержатся переданные в метод слова, например "python" - нажмите 5
-        Выход - нажмите 0\n--->
+        Выход - нажмите 0\n---> 
         """))
 
             if user == 1:
@@ -34,14 +34,17 @@ def main():
                 for i in report:
                     print(*i)
             elif user == 5:
-                word = input("Введите слово")
+                word = input("Введите слово:  ")
                 report = DBManager().get_vacancies_with_keyword(word)
                 for i in report:
                     print(*i)
+            elif user == 0:
+                break
             else:
                 print('Не правильно ввели данные')
     except ValueError:
         print("Введите число")
+
 
 if __name__ == '__main__':
     main()
