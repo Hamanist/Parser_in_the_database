@@ -27,9 +27,9 @@ class DBManager:
                     vacancy_id INT PRIMARY KEY,
                     vacancies_name VARCHAR(150) NOT NULL,
                     city VARCHAR(150) NOT NULL,
-                    salary_min INT,
-                    salary_max INT,
-                    url_vacancies VARCHAR(250) NOT NULL,
+                    salary_min INT DEFAULT 0,
+                    salary_max INT DEFAULT 0,
+                    url_vacancies VARCHAR(150) NOT NULL,
                     company_id INT REFERENCES company(company_id))
                     """
 
@@ -56,28 +56,104 @@ class DBManager:
         """
         Получает список всех компаний и количество вакансий у каждой компании.
         """
-        pass
+
+        with psycopg2.connect(
+                host=os.getenv('HOST'),
+                database=os.getenv('DATABASE'),
+                user=os.getenv('USER_P'),
+                password=os.getenv('PASSWORD')) as conn:
+            with conn.cursor() as curs:
+                curs.execute(
+                    """
+                    SELECT company_name, COUNT(DISTINCT vacancies_name) 
+                    FROM company
+                    FULL JOIN vacancy USING (company_id)
+                    GROUP BY company_name
+                    """
+                )
+                rows = curs.fetchall()
+        return rows
 
     def get_all_vacancies(self):
         """
         Получает список всех вакансий с указанием названия компании, названия вакансии и зарплаты и ссылки на вакансию.
         """
-        pass
+        with psycopg2.connect(
+                host=os.getenv('HOST'),
+                database=os.getenv('DATABASE'),
+                user=os.getenv('USER_P'),
+                password=os.getenv('PASSWORD')) as conn:
+            with conn.cursor() as curs:
+                curs.execute(
+                    """
+                    SELECT company_name, vacancies_name, salary_min, salary_max, url_vacancies
+                    FROM company
+                    FULL JOIN vacancy USING (company_id)
+                    """
+                )
+                rows = curs.fetchall()
+        return rows
 
     def get_avg_salary(self):
         """
     Получает среднюю зарплату по вакансиям.
         """
-        pass
+        with psycopg2.connect(
+                host=os.getenv('HOST'),
+                database=os.getenv('DATABASE'),
+                user=os.getenv('USER_P'),
+                password=os.getenv('PASSWORD')) as conn:
+            with conn.cursor() as curs:
+                curs.execute(
+                    """
+                    SELECT vacancies_name, company_name, round(AVG((salary_max + salary_min) / 2)) AS average_salary
+                    FROM company
+                    FULL JOIN vacancy USING (company_id)
+                    GROUP BY vacancies_name, company_name
+                    """
+                )
+                rows = curs.fetchall()
+        return rows
 
     def get_vacancies_with_higher_salary(self):
         """
         Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям.
         """
-        pass
+        with psycopg2.connect(
+                host=os.getenv('HOST'),
+                database=os.getenv('DATABASE'),
+                user=os.getenv('USER_P'),
+                password=os.getenv('PASSWORD')) as conn:
+            with conn.cursor() as curs:
+                curs.execute(
+                    """
+                    SELECT vacancies_name, company_name, round(AVG((salary_max + salary_min) / 2)) AS average_salary
+                    FROM company
+                    WHERE (salary_max + salary_min) / 2 > (SELECT round(AVG((salary_max + salary_min) / 2))
+                    FROM vacancy)
+                    ORDER BY vacancies_name
+                    """
+                )
+                rows = curs.fetchall()
+        return rows
 
-    def get_vacancies_with_keyword(self):
+    def get_vacancies_with_keyword(self, keyword):
         """
         Получает список всех вакансий, в названии которых содержатся переданные в метод слова, например python.
         """
-        pass
+        with psycopg2.connect(
+                host=os.getenv('HOST'),
+                database=os.getenv('DATABASE'),
+                user=os.getenv('USER_P'),
+                password=os.getenv('PASSWORD')) as conn:
+            with conn.cursor() as curs:
+                curs.execute(
+                    f"""
+                    SELECT vacancies_name 
+                    FROM vacancy
+                    WHERE vacancies_name LIKE '%{keyword}%'
+                    """
+                )
+
+                rows = curs.fetchall()
+        return rows
