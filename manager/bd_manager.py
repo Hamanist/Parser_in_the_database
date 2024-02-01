@@ -127,11 +127,9 @@ class DBManager:
             with conn.cursor() as curs:
                 curs.execute(
                     """
-                    SELECT vacancies_name, company_name, round(AVG((salary_max + salary_min) / 2)) AS average_salary
-                    FROM company
-                    WHERE (salary_max + salary_min) / 2 > (SELECT round(AVG((salary_max + salary_min) / 2))
-                    FROM vacancy)
-                    ORDER BY vacancies_name
+                    SELECT *
+                    FROM vacancy
+                    WHERE (salary_min + salary_max) / 2 > (SELECT AVG((salary_min + salary_max) / 2) FROM vacancy)
                     """
                 )
                 rows = curs.fetchall()
