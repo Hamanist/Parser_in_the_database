@@ -11,6 +11,9 @@ load_dotenv()
 class DBManager:
 
     def connect_bd(self):
+        """
+        Метод для подключения к БД, создании таблиц и заполнения ими данных из класса Parse
+        """
         with psycopg2.connect(
                 host=os.getenv('HOST'),
                 database=os.getenv('DATABASE'),

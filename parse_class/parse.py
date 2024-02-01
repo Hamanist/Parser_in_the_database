@@ -8,6 +8,11 @@ class Parse:
 
     @staticmethod
     def get_salary(salary):
+        """
+        Функция, которая переопределяет значение с ненужным форматом
+        :param salary: принимает данные с зарплатой
+        :return: нужное значение
+        """
         salary_list = [0, 0]
         if salary and salary['from'] and salary['from'] != 0:
             salary_list[0] = salary['from']
@@ -16,6 +21,11 @@ class Parse:
         return salary_list
 
     def get_data(self):
+        """
+        "employer_id" - id компаний которые нужны
+        'per_page' - запрос количества вакансий
+        :return: нужные данные распарсенные из метода  _parse
+        """
         __url = 'https://api.hh.ru/vacancies'
         __params = {
             "employer_id": ['3529', '606135', '2519536', '38377', '3953333', '5902137', '676167', '3553513', '35086',
@@ -28,6 +38,10 @@ class Parse:
         return None
 
     def _parse(self, data):
+        """
+        :param data: принимает ответ из метода get_data для дальнейшего парсинга
+        :return: нужный список со словарем, в котором нужные нам данные
+        """
         answer = []
         for report in data['items']:
             salary_min, salary_max = self.get_salary(report['salary'])
